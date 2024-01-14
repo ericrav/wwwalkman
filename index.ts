@@ -16,8 +16,7 @@ const stream = new WritableStream({
 const debugStream = new WritableStream({
   write(chunk) {
     const str = new TextDecoder().decode(chunk);
-    console.log('debug', str);
-    if (str.includes('NOCARRIER')) {
+    if (str.includes('NOCARRIER') && buf) {
       console.log('flushing!', buf)
       state.ready.resolve();
       state.ready = new AsyncSubject();
@@ -25,7 +24,7 @@ const debugStream = new WritableStream({
   },
 });
 
-const proc = Bun.spawn(['minimodem', '-r', '500'], {
+const proc = Bun.spawn(['minimodem', '-r', '600'], {
   stderr: 'pipe',
 });
 proc.stdout.pipeTo(stream);
@@ -39,7 +38,6 @@ Bun.serve({
 
       while (true) {
         await state.ready.promise;
-        console.log('yielding');
         if (buf) yield buf;
         buf = '';
 
