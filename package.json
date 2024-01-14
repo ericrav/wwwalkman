@@ -7,5 +7,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/sanitize-html": "^2.9.5",
+    "sanitize-html": "^2.11.0"
   }
 }

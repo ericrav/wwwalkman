@@ -1,9 +1,10 @@
 import { AsyncSubject } from "./AsyncSubject";
+import { h } from "./utils";
 
 let buf = '';
 
 const state = {
-  ready: new AsyncSubject()
+  ready: new AsyncSubject<string>()
 };
 const stream = new WritableStream({
   write(chunk) {
@@ -18,7 +19,8 @@ const debugStream = new WritableStream({
     const str = new TextDecoder().decode(chunk);
     if (str.includes('NOCARRIER') && buf) {
       console.log('flushing!', buf)
-      state.ready.resolve();
+      state.ready.resolve(buf);
+      buf = '';
       state.ready = new AsyncSubject();
     }
   },
@@ -37,10 +39,8 @@ Bun.serve({
       yield '<html><body><h1>hello</h1>';
 
       while (true) {
-        await state.ready.promise;
-        if (buf) yield buf;
-        buf = '';
-
+        const data = await state.ready.promise;
+        if (data) yield h(data);
       }
     })();
 
