@@ -1,57 +1,48 @@
-let buf = '<html><body><h1>hello</h1>';
+import { AsyncSubject } from "./AsyncSubject";
+
+let buf = '';
+
+const state = {
+  ready: new AsyncSubject()
+};
 const stream = new WritableStream({
   write(chunk) {
     const str = new TextDecoder().decode(chunk);
+    if (str === '�' || !str.trim()) return;
     buf += str;
-    // console.log(str);
   },
 });
 
 const debugStream = new WritableStream({
   write(chunk) {
     const str = new TextDecoder().decode(chunk);
-    // console.log('debug', str);
+    console.log('debug', str);
+    if (str.includes('NOCARRIER')) {
+      console.log('flushing!', buf)
+      state.ready.resolve();
+      state.ready = new AsyncSubject();
+    }
   },
 });
 
-// const proc = Bun.spawn(['minimodem', '-r', '300'], {
-//   stderr: 'pipe',
-// });
-// proc.stdout.pipeTo(stream);
-// proc.stderr.pipeTo(debugStream);
+const proc = Bun.spawn(['minimodem', '-r', '500'], {
+  stderr: 'pipe',
+});
+proc.stdout.pipeTo(stream);
+proc.stderr.pipeTo(debugStream);
 
 
 Bun.serve({
   fetch(req: Request) {
-    let i = 0;
     const asyncIterator = (async function* () {
+      yield '<html><body><h1>hello</h1>';
+
       while (true) {
-        yield '<p>Iteration #: ' + i++ + '</p>';
+        await state.ready.promise;
+        console.log('yielding');
+        if (buf) yield buf;
+        buf = '';
 
-        if (i === 10) {
-          yield `
-            <style>
-              body {
-                background-color: beige;
-              }
-
-              * {
-                max-width: 600px;
-                margin-left: auto;
-                margin-right: auto;
-                color: navy;
-              }
-            </style>
-          `
-        }
-
-        if (i === 15) {
-          yield `
-            <script>alert('hello')</script>
-          `
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     })();
 
