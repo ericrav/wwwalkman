@@ -1,6 +1,9 @@
 import { AsyncSubject } from "./AsyncSubject";
 import { h } from "./utils";
 
+const port = parseInt(process.env.PORT!) || 80;
+const buadRate = process.env.BAUD || '1200';
+
 let buf = '';
 
 const state = {
@@ -26,7 +29,7 @@ const debugStream = new WritableStream({
   },
 });
 
-const proc = Bun.spawn(['minimodem', '-r', '600'], {
+const proc = Bun.spawn(['minimodem', '-r', buadRate], {
   stderr: 'pipe',
 });
 proc.stdout.pipeTo(stream);
@@ -40,7 +43,7 @@ Bun.serve({
 
       while (true) {
         const data = await state.ready.promise;
-        if (data) yield h(data);
+        if (data) yield data;
       }
     })();
 
@@ -59,5 +62,5 @@ Bun.serve({
 
     return res;
   },
-  port: 1234,
+  port,
 });
