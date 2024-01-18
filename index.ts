@@ -47,7 +47,13 @@ Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === '/record') {
-      return record(url.searchParams.get('url')!, req);
+      const siteParam = url.searchParams.get('url');
+
+      if (!siteParam) {
+        return new Response(Bun.file('./record.html'))
+      }
+
+      return record(siteParam, req);
     }
 
     const asyncIterator = (async function* () {
