@@ -1,4 +1,4 @@
 #! /bin/bash
-export BITRATE=48
+export BITRATE=1
 cd amodem
 python -m amodem recv
