@@ -47,8 +47,7 @@ Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === '/record') {
-      await record(url.searchParams.get('url')!, req);
-      return new Response('ok');
+      return record(url.searchParams.get('url')!, req);
     }
 
     const asyncIterator = (async function* () {
@@ -90,5 +89,42 @@ async function record(siteUrl: string, req: Request) {
     proc.kill();
   }
 
-  await proc.exited;
+  let keepSending = true;
+
+  const asyncIterator = (async function* () {
+    yield `
+    <html>
+      <body>
+      <p>Recording...</p>
+      <br />
+      <button onclick="stop()">Stop</button>
+    `;
+
+    while (keepSending) {
+      const data = await state.ready.promise;
+      if (data) yield data;
+    }
+
+    yield `<p>Done recording ${siteUrl}!</p></body></html>`
+  })();
+
+  const readable = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await asyncIterator.next();
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
+  });
+
+  const res = new Response(readable);
+
+  proc.exited.then(() => {
+    console.log('Done!');
+    keepSending = false;
+  })
+
+  return res;
 }
