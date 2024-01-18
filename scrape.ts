@@ -23,22 +23,6 @@ export async function scrape(baseUrl: string ) {
 
   const html = await  pipeAsync(
     text,
-    str => {
-      try {
-        return juice(str, { insertPreservedExtraCss: true  });
-      } catch {
-        return str
-      }
-    },
-    // str => sanitize(str, {
-    //   allowVulnerableTags: true,
-    //   allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style']),
-    //   allowedAttributes: {
-    //     ...sanitize.defaults.allowedAttributes,
-    //     '*': ['style', 'class', 'id'],
-    //   },
-    //   allowedSchemes: ['data', 'http'],
-    // }),
     async str => {
       let $ = cheerio.load(str);
       $('link').remove();
@@ -60,6 +44,14 @@ export async function scrape(baseUrl: string ) {
         }
       }
 
+      const baseHtml = `<style>#in-story-masthead {
+        display: unset !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }</style>`;
+
+      $.root().append(baseHtml);
+
       $('a').each((i, el) => {
         const href = $(el).attr('href');
         if (href) {
@@ -77,7 +69,7 @@ export async function scrape(baseUrl: string ) {
             const buffer = await (await response.blob()).arrayBuffer();
             const { width = 100, height = 100 } = await sharp(buffer).metadata();
             const resizedImageBuffer = await sharp(buffer)
-              .resize({ width: Math.min(width, 220), height: Math.min(height, 100), fit: 'inside' })
+              .resize({ width: Math.min(width, 120), height: Math.min(height, 100), fit: 'inside' })
               .toFormat('jpeg')
               .toBuffer();
             const base64Image = resizedImageBuffer.toString('base64');
@@ -94,6 +86,27 @@ export async function scrape(baseUrl: string ) {
 
       return $.html();
     },
+    str => {
+      try {
+        return juice(str, { insertPreservedExtraCss: false, preserveMediaQueries: false, preservePseudos: false });
+      } catch {
+        try {
+          return juice(str, { insertPreservedExtraCss: false, resolveCSSVariables: false, preserveMediaQueries: false, preservePseudos: false  });
+        } catch (e) {
+          console.error(e);
+          return str
+        }
+      }
+    },
+    str => sanitize(str, {
+      allowVulnerableTags: true,
+      allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style']),
+      allowedAttributes: {
+        ...sanitize.defaults.allowedAttributes,
+        '*': ['style', 'class', 'id', 'href'],
+      },
+      allowedSchemes: ['data', 'http'],
+    }),
     str => minify(str, {
       collapseWhitespace: true,
       removeComments: true,
