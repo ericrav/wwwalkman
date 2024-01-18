@@ -2,6 +2,9 @@
   "name": "radnet",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "amodem": "cd amodem && python -m amodem"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },

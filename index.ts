@@ -14,6 +14,11 @@ const stream = new WritableStream({
     const str = new TextDecoder().decode(chunk);
     if (str === '�' || !str.trim()) return;
     buf += str;
+    if (buf.length >= 32) {
+      state.ready.resolve(buf);
+      buf = '';
+      state.ready = new AsyncSubject();
+    }
   },
 });
 
@@ -39,7 +44,7 @@ proc.stderr.pipeTo(debugStream);
 Bun.serve({
   fetch(req: Request) {
     const asyncIterator = (async function* () {
-      yield '<html><body><h1>hello</h1>';
+      yield '<html>';
 
       while (true) {
         const data = await state.ready.promise;
