@@ -1,8 +1,9 @@
 import { AsyncSubject } from "./AsyncSubject";
+import { scrape } from "./scrape";
 import { h } from "./utils";
 
-const port = parseInt(process.env.PORT!) || 80;
-const buadRate = process.env.BAUD || '1200';
+const port = parseInt(process.env.PORT!) || 1234;
+const baudRate = process.env.BAUD || '1200';
 
 let buf = '';
 
@@ -34,7 +35,7 @@ const debugStream = new WritableStream({
   },
 });
 
-const proc = Bun.spawn(['minimodem', '-r', buadRate], {
+const proc = Bun.spawn(['minimodem', '-r', baudRate], {
   stderr: 'pipe',
 });
 proc.stdout.pipeTo(stream);
@@ -42,7 +43,14 @@ proc.stderr.pipeTo(debugStream);
 
 
 Bun.serve({
-  fetch(req: Request) {
+  async fetch(req: Request) {
+    const url = new URL(req.url);
+
+    if (url.pathname === '/record') {
+      await record(url.searchParams.get('url')!);
+      return new Response('ok');
+    }
+
     const asyncIterator = (async function* () {
       yield '<html>';
 
@@ -69,3 +77,13 @@ Bun.serve({
   },
   port,
 });
+
+async function record(siteUrl: string) {
+  await scrape(siteUrl);
+
+  const proc = Bun.spawn(['bash', './record.sh'], {
+    // stderr: 'pipe',
+  });
+
+  await proc.exited;
+}

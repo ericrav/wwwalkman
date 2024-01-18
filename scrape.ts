@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import { minify } from 'html-minifier';
 import { pipe, pipeAsync } from './utils';
 
-await scrape('https://www.nytimes.com/interactive/2019/08/23/opinion/data-internet-privacy-tracking.html');
+// await scrape('https://www.nytimes.com/interactive/2019/08/23/opinion/data-internet-privacy-tracking.html');
 
 export async function scrape(baseUrl: string ) {
   const makeAbsoluteUrl = (url: string) => {
