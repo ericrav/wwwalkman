@@ -47,7 +47,7 @@ Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === '/record') {
-      await record(url.searchParams.get('url')!);
+      await record(url.searchParams.get('url')!, req);
       return new Response('ok');
     }
 
@@ -78,12 +78,17 @@ Bun.serve({
   port,
 });
 
-async function record(siteUrl: string) {
+async function record(siteUrl: string, req: Request) {
   await scrape(siteUrl);
 
-  const proc = Bun.spawn(['bash', './record.sh'], {
-    // stderr: 'pipe',
+  const proc = Bun.spawn(['minimodem', '-t', baudRate], {
+    stdin: Bun.file('./html/output.html')
   });
+
+  req.signal.onabort = () => {
+    console.log('request aborted');
+    proc.kill();
+  }
 
   await proc.exited;
 }

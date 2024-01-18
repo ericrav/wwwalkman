@@ -23,7 +23,13 @@ export async function scrape(baseUrl: string ) {
 
   const html = await  pipeAsync(
     text,
-    str => juice(str, { insertPreservedExtraCss: true  }),
+    str => {
+      try {
+        return juice(str, { insertPreservedExtraCss: true  });
+      } catch {
+        return str
+      }
+    },
     // str => sanitize(str, {
     //   allowVulnerableTags: true,
     //   allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style']),
