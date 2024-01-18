@@ -98,6 +98,17 @@ export async function scrape(baseUrl: string ) {
         }
       }
     },
+    str => {
+      const $ = cheerio.load(str);
+      $('*').each(function (i, el) {
+        var display = $(el).css('display');
+        if (display === 'none') {
+          $(el).remove();
+        }
+      });
+
+      return $.html();
+    },
     str => sanitize(str, {
       allowVulnerableTags: true,
       allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style']),
