@@ -47,8 +47,13 @@ Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === '/record') {
-      await record(url.searchParams.get('url')!);
-      return new Response('ok');
+      const siteParam = url.searchParams.get('url');
+
+      if (!siteParam) {
+        return new Response(Bun.file('./record.html'))
+      }
+
+      return record(siteParam, req);
     }
 
     const asyncIterator = (async function* () {
@@ -78,12 +83,54 @@ Bun.serve({
   port,
 });
 
-async function record(siteUrl: string) {
+async function record(siteUrl: string, req: Request) {
   await scrape(siteUrl);
 
-  const proc = Bun.spawn(['bash', './record.sh'], {
-    // stderr: 'pipe',
+  const proc = Bun.spawn(['minimodem', '-t', baudRate], {
+    stdin: Bun.file('./html/output.html')
   });
 
-  await proc.exited;
+  req.signal.onabort = () => {
+    console.log('request aborted');
+    proc.kill();
+  }
+
+  let keepSending = true;
+
+  const asyncIterator = (async function* () {
+    yield `
+    <html>
+      <body>
+      <p>Recording...</p>
+      <br />
+      <button onclick="stop()">Stop</button>
+    `;
+
+    while (keepSending) {
+      const data = await state.ready.promise;
+      if (data) yield data;
+    }
+
+    yield `<p>Done recording ${siteUrl}!</p></body></html>`
+  })();
+
+  const readable = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await asyncIterator.next();
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
+  });
+
+  const res = new Response(readable);
+
+  proc.exited.then(() => {
+    console.log('Done!');
+    keepSending = false;
+  })
+
+  return res;
 }
