@@ -19,13 +19,25 @@ export async function scrape(baseUrl: string ) {
     return u.href;
   }
 
-  const text = await fetch(baseUrl).then(res => res.text());
+  const text = await fetch(baseUrl, {
+    headers: {
+      'Accept-Language': 'en-US',
+    }
+  }).then(res => res.text());
 
   const html = await  pipeAsync(
     text,
     async str => {
       let $ = cheerio.load(str);
-      $('link').remove();
+      $('link:not([rel="stylesheet"])').remove();
+      // $('link').each((i, el) => {
+      //   // $(el).data('embed', 'true');
+      //   // $(el).data('data-embed', 'true');
+      //   // $(el).attr('data-embed', 'data-embed');
+      //   $(el).attr('data-inline', 'data-inline');
+      //   console.log(i, $(el).data('embed'));
+      // });
+      // $('link').each((i, el) => console.log($(el).toString()))
       $('script').remove();
       $('meta').remove();
       $('svg').remove();
@@ -33,16 +45,16 @@ export async function scrape(baseUrl: string ) {
       const length = $.html().length;
       console.log('Length: ' + length);
 
-      if (length > 200000) {
-        const reader = new Readability(new JSDOM($.html()).window.document);
-        const readerDoc = reader.parse();
-        if (readerDoc) {
-          const title = `<h1>${readerDoc.title}</h1>`;
-          const styles = $('style').map((i, el) => $(el).html()).get().join('\n');
-          $ = cheerio.load(title + readerDoc.content);
-          $.root().append(`<style>${styles}</style>`);
-        }
-      }
+      // if (length > 200000) {
+      //   const reader = new Readability(new JSDOM($.html()).window.document);
+      //   const readerDoc = reader.parse();
+      //   if (readerDoc) {
+      //     const title = `<h1>${readerDoc.title}</h1>`;
+      //     const styles = $('style').map((i, el) => $(el).html()).get().join('\n');
+      //     $ = cheerio.load(title + readerDoc.content);
+      //     $.root().append(`<style>${styles}</style>`);
+      //   }
+      // }
 
       const baseHtml = `<style>#in-story-masthead {
         display: unset !important;
@@ -86,12 +98,13 @@ export async function scrape(baseUrl: string ) {
 
       return $.html();
     },
+    // str => str.replaceAll('="data-inline"', ''),
     str => {
       try {
-        return juice(str, { insertPreservedExtraCss: false, preserveMediaQueries: false, preservePseudos: false });
+        return juice(str, { insertPreservedExtraCss: false, preserveMediaQueries: false, preservePseudos: false, webResources: { links: true } });
       } catch {
         try {
-          return juice(str, { insertPreservedExtraCss: false, resolveCSSVariables: false, preserveMediaQueries: false, preservePseudos: false  });
+          return juice(str, { insertPreservedExtraCss: false, resolveCSSVariables: false, preserveMediaQueries: false, preservePseudos: false, webResources: { links: true }  });
         } catch (e) {
           console.error(e);
           return str
@@ -109,15 +122,16 @@ export async function scrape(baseUrl: string ) {
 
       return $.html();
     },
-    str => sanitize(str, {
-      allowVulnerableTags: true,
-      allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style']),
-      allowedAttributes: {
-        ...sanitize.defaults.allowedAttributes,
-        '*': ['style', 'class', 'id', 'href'],
-      },
-      allowedSchemes: ['data', 'http'],
-    }),
+    // str => sanitize(str, {
+    //   allowVulnerableTags: true,
+    //   allowedTags: sanitize.defaults.allowedTags.concat(['title', 'style', 'link']),
+    //   allowedAttributes: {
+    //     ...sanitize.defaults.allowedAttributes,
+    //     '*': ['style', 'class', 'id', 'href'],
+    //     'link': ['*', 'rel', 'data-embed', 'href', 'src']
+    //   },
+    //   allowedSchemes: ['data', 'http'],
+    // }),
     str => minify(str, {
       collapseWhitespace: true,
       removeComments: true,
