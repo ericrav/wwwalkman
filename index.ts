@@ -34,8 +34,8 @@ const stream = new WritableStream({
     const str = new TextDecoder().decode(chunk);
     if (str === '�') return;
     buf += str;
-    if (buf.length >= 32 && buf.at(-1) !== ' ') {
-      console.log('flushing!', buf)
+    if (buf.length >= 32) {
+      console.log(buf)
       state.ready.resolve(buf);
       buf = '';
       state.ready = new AsyncSubject();
@@ -47,7 +47,7 @@ const debugStream = new WritableStream({
   write(chunk) {
     const str = new TextDecoder().decode(chunk);
     if (str.includes('NOCARRIER') && buf) {
-      console.log('flushing!', buf)
+      console.log(buf)
       state.ready.resolve(buf);
       buf = '';
       state.ready = new AsyncSubject();
@@ -104,7 +104,9 @@ Bun.serve({
 });
 
 async function record(siteUrl: string, req: Request) {
+  console.log('\nRequesting ' + siteUrl);
   await scrape(siteUrl);
+  console.log('\nRecording started');
 
   const proc = Bun.spawn(['minimodem', '-t', baudRate], {
     stdin: Bun.file('./html/output.html')
@@ -148,7 +150,7 @@ async function record(siteUrl: string, req: Request) {
   const res = new Response(readable);
 
   proc.exited.then(() => {
-    console.log('Done!');
+    console.log(`Done recording ${siteUrl}!`);
     keepSending = false;
   })
 
