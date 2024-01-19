@@ -30,14 +30,12 @@ export async function scrape(baseUrl: string ) {
     async str => {
       let $ = cheerio.load(str);
       $('link:not([rel="stylesheet"])').remove();
-      // $('link').each((i, el) => {
-      //   // $(el).data('embed', 'true');
-      //   // $(el).data('data-embed', 'true');
-      //   // $(el).attr('data-embed', 'data-embed');
-      //   $(el).attr('data-inline', 'data-inline');
-      //   console.log(i, $(el).data('embed'));
-      // });
-      // $('link').each((i, el) => console.log($(el).toString()))
+      $('link').each((i, el) => {
+        const href = $(el).attr('href');
+        if (href) {
+          $(el).attr('href', makeAbsoluteUrl(href));
+        }
+      });
       $('script').remove();
       $('meta').remove();
       $('svg').remove();
@@ -141,7 +139,7 @@ export async function scrape(baseUrl: string ) {
       removeStyleLinkTypeAttributes: true,
       minifyCSS: true,
     }),
-    str => str.replace(/<([a-z]+) /g, '<$1  '),
+    // str => str.replace(/<([a-z]+) /g, '<$1  '),
   );
 
   await Bun.write('./html/output.html', html);

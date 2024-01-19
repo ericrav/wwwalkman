@@ -32,9 +32,10 @@ const state = {
 const stream = new WritableStream({
   write(chunk) {
     const str = new TextDecoder().decode(chunk);
-    if (str === '�' || !str.trim()) return;
+    if (str === '�') return;
     buf += str;
-    if (buf.length >= 32) {
+    if (buf.length >= 32 && buf.at(-1) !== ' ') {
+      console.log('flushing!', buf)
       state.ready.resolve(buf);
       buf = '';
       state.ready = new AsyncSubject();
@@ -72,7 +73,7 @@ Bun.serve({
         return new Response(Bun.file('./record.html'))
       }
 
-      return record(siteParam, req);
+      return await record(siteParam, req);
     }
 
     const asyncIterator = (async function* () {
