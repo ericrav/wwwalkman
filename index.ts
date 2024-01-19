@@ -7,6 +7,25 @@ const baudRate = process.env.BAUD || '1200';
 
 let buf = '';
 
+const scrollingScript = `<script>
+let interval = setInterval(() => {
+  window.scrollTo(0, document.body.scrollHeight);
+}, 1000);
+
+let timeout;
+document.addEventListener('scroll', () => {
+  clearInterval(interval);
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    const delay = (window.scrollTop)
+    interval = setInterval(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 1000);
+  }, 1200);
+});
+
+</script>`;
+
 const state = {
   ready: new AsyncSubject<string>()
 };
@@ -57,7 +76,7 @@ Bun.serve({
     }
 
     const asyncIterator = (async function* () {
-      yield '<html>';
+      yield '<html>' + scrollingScript;
 
       while (true) {
         const data = await state.ready.promise;
