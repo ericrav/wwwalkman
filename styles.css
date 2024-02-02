@@ -4,6 +4,7 @@ body {
   color: navy !important;
 }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body {
     background: #141115 !important;
@@ -13,6 +14,7 @@ body {
     color: #4C2B36 !important;
   }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body {
     background: #3B413C !important;
@@ -21,6 +23,7 @@ body {
     color: #FFFFFF !important;
   }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body {
     background: #F2F2F2 !important;
@@ -32,6 +35,7 @@ body {
     color: #FE938C !important;
   }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body {
     background: #f3fdfc !important;
@@ -40,6 +44,7 @@ body {
     color: #041616 !important;
   }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body {
     background: #f5f3f8 !important;
@@ -48,6 +53,7 @@ body {
     color: #8467a3 !important;
   }
 </style>
+<style></style><style></style><style></style><style></style>
 <style>
   body::after {
     content: '';
@@ -63,5 +69,114 @@ body {
   }
   * {
     color: white !important;
+  }
+</style>
+<style></style><style></style><style></style><style></style>
+<style>
+  body {
+    background: unset !important;
+  }
+  body::after {
+    display: none;
+  }
+  * {
+    color: unset !important;
+  }
+  .www_dot {
+    position: fixed;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 10;
+    width: 16px;
+    height: 16px;
+    opacity: 0.75;
+    mix-blend-mode: hard-light;
+  }
+  .www_dot:nth-child(even) {
+    width: 23px;
+    height: 23px;
+  }
+  .www_dot:nth-child(3n+1) {
+    width: 42px;
+    height: 42px;
+  }
+  .www_dot:nth-child(5n+0) {
+    background: #191716;
+  }
+  .www_dot:nth-child(5n+1) {
+    background: #E6AF2E;
+  }
+  .www_dot:nth-child(5n+2) {
+    background: #E0E2DB;
+  }
+  .www_dot:nth-child(5n+3) {
+    background: #3D348B;
+  }
+  .www_dot:nth-child(5n+4) {
+    background: #BEB7A4;
+  }
+</style>
+
+<div class="www_dot" style="left:50%;top:50%"></div>
+<div class="www_dot" style="left:42.34%;top:16.2%"></div>
+<div class="www_dot" style="left:57.66%;top:16.2%"></div>
+<div class="www_dot" style="left:28.66%;top:28.2%"></div>
+<div class="www_dot" style="left:71.34%;top:28.2%"></div>
+<div class="www_dot" style="left:12.2%;top:42.34%"></div>
+<div class="www_dot" style="left:68.8%;top:72.34%"></div>
+<div class="www_dot" style="left:6.2%;top:21.66%"></div>
+<div class="www_dot" style="left:89.8%;top:57.66%"></div>
+<div class="www_dot" style="left:36.66%;top:44.34%"></div>
+<div class="www_dot" style="left:17.34%;top:71.34%"></div>
+<div class="www_dot" style="left:46.34%;top:3.8%"></div>
+<div class="www_dot" style="left:66.66%;top:83.8%"></div>
+<div class="www_dot" style="left:90%;top:88%"></div>
+<div class="www_dot" style="left:10%;top:12%"></div>
+<div class="www_dot" style="left:83.8%;top:66.66%"></div>
+<div class="www_dot" style="left:3.8%;top:46.34%"></div>
+<div class="www_dot" style="left:71.34%;top:17.34%"></div>
+<div class="www_dot" style="left:44.34%;top:36.66%"></div>
+<div class="www_dot" style="left:57.66%;top:89.8%"></div>
+<div class="www_dot" style="left:21.66%;top:6.2%"></div>
+<div class="www_dot" style="left:72.34%;top:68.8%"></div>
+<div class="www_dot" style="left:42.34%;top:12.2%"></div>
+<div class="www_dot" style="left:28.2%;top:28.66%"></div>
+<div class="www_dot" style="left:71.8%;top:28.66%"></div>
+<div class="www_dot" style="left:16.2%;top:42.34%"></div>
+<div class="www_dot" style="left:57.66%;top:57.66%"></div>
+<div class="www_dot" style="left:28.2%;top:71.8%"></div>
+
+<style>
+  .www_dot {
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+  }
+</style>
+<style></style>
+<style>
+  .www_dot {
+    display: none;
+  }
+</style>
+
+<style>
+  * {
+    text-align: right;
+  }
+</style>
+<style>
+  * {
+    text-align: center;
+  }
+</style>
+<style>
+  * {
+    text-align: left;
+  }
+</style>
+
+<style>
+  * {
+    font-family: 'Roboto', sans-serif !important;
   }
 </style>
